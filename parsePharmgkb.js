@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+var program = require('commander');
 var fs = require('fs');
 var JSONStream = require('JSONStream');
 var es = require('event-stream');
@@ -30,4 +30,41 @@ stream.on('end', function (value) {
 })
 }
 
-getAssociations();
+function getNegativeAssociations() {
+
+var stream = 	byline(fs.createReadStream('./relationships.tsv'));
+stream.setEncoding('utf8');
+
+stream.on('data', function(data) {
+    var lineToArray = data.split("\t");
+    var entity1_id = lineToArray[0];
+    var entity1_type = lineToArray[2];
+    var entity2_id = lineToArray[3];
+    var entity2_type = lineToArray[5];
+    var association = lineToArray[7];
+    if(association=='not associated' && ((entity1_type=='Disease' && entity2_type=='Gene')||(entity1_type=='Gene' && entity2_type=='Disease'))) {
+      console.log(entity1_id + " " + entity1_type + ";" + entity2_id + " " + entity2_type + ";" + association);
+    }
+	})
+stream.on('end', function (value) {
+  console.log("Lecture terminée");
+})
+}
+
+
+program
+  .version('0.0.1');
+
+program.command('getAssociations <param>')
+.description('Get list of associations of a give type')
+.action(function(param){
+  console.log(param);
+  if(param == 'positive') {
+    getAssociations();
+  }
+  else if(param== 'negative') {
+    getNegativeAssociations();
+  }
+});
+
+program.parse(process.argv);
