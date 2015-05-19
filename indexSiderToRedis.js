@@ -19,11 +19,12 @@ stream.setEncoding('utf8');
 stream.on('data', function(data) {
     var lineToArray = data.split("\t");
     var snomedCui = lineToArray[6];
+    var type = lineToArray[5];
     var sider = lineToArray[3];
-    console.log(sider + " " + snomedCui);
-
-		redisClient.sadd(snomedCui, sider, redis.print);
-		console.log(snomedCui + " " + sider);
+    if(type=="PT") {
+      redisClient.sadd(snomedCui, sider, redis.print);
+  		console.log(snomedCui + " " + sider);
+    }
 	})
 stream.on('end', function (value) {
   console.log("Indexation terminée");
