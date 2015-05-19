@@ -12,7 +12,7 @@ var redisClient = redis.createClient();
 
 function indexJsonSnomedtoCui() {
 
-var stream = 	fs.createReadStream('./convertcsv.json', encoding='utf8')
+var stream = 	fs.createReadStream('./snomedtocui.json', encoding='utf8')
 .pipe(JSONStream.parse('*'));
 stream.on('data', function(data) {
 
