@@ -22,7 +22,12 @@ stream.on('data', function(data) {
     var entity2_type = lineToArray[5];
     var association = lineToArray[7];
     if(association=='associated' && ((entity1_type=='Disease' && entity2_type=='Gene')||(entity1_type=='Gene' && entity2_type=='Disease'))) {
-      console.log(entity1_id + " " + entity1_type + ";" + entity2_id + " " + entity2_type + ";" + association);
+      if(entity1_type=='Gene' && entity2_type=='Disease') {
+        console.log(entity1_id + ";" + entity2_id + ";" + association);
+      }
+      else {
+        console.log(entity2_id + ";" + entity1_id + ";" + association);
+      }
     }
 	})
 stream.on('end', function (value) {
@@ -43,7 +48,13 @@ stream.on('data', function(data) {
     var entity2_type = lineToArray[5];
     var association = lineToArray[7];
     if(association=='not associated' && ((entity1_type=='Disease' && entity2_type=='Gene')||(entity1_type=='Gene' && entity2_type=='Disease'))) {
-      console.log(entity1_id + " " + entity1_type + ";" + entity2_id + " " + entity2_type + ";" + association);
+      if(entity1_type=='Gene' && entity2_type=='Disease') {
+        console.log(entity1_id + ";" + entity2_id + ";" + association);
+    }
+    else {
+      console.log(entity2_id + ";" + entity1_id + ";" + association);
+
+    }
     }
 	})
 stream.on('end', function (value) {
