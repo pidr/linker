@@ -65,7 +65,7 @@ stream.on('end', function (value) {
 function isAssociated(gene,drug) {
   var stream = 	byline(fs.createReadStream('./relationships.tsv'));
   stream.setEncoding('utf8');
-  var result=false;
+  var result=2;
   stream.on('data', function(data) {
       var lineToArray = data.split("\t");
       var entity1_id = lineToArray[0];
@@ -73,17 +73,30 @@ function isAssociated(gene,drug) {
       var entity2_id = lineToArray[3];
       var entity2_type = lineToArray[5];
       var association = lineToArray[7];
-      console.log("Hello");
       if(association=='associated' && ((entity1_type=='Drug' && entity2_type=='Gene')||(entity1_type=='Gene' && entity2_type=='Drug'))) {
         if(entity1_type=='Gene' && entity2_type=='Disease') {
           if(entity1_id==gene && entity2_id==drug) {
-            result = true;
+            result = 1;
 
           }
         }
         else {
           if(entity2_id==gene && entity1_id==drug) {
-            result = true;
+            result = 1;
+          }
+
+        }
+      }
+      if(association=='not associated' && ((entity1_type=='Drug' && entity2_type=='Gene')||(entity1_type=='Gene' && entity2_type=='Drug'))) {
+        if(entity1_type=='Gene' && entity2_type=='Disease') {
+          if(entity1_id==gene && entity2_id==drug) {
+            result = 0;
+
+          }
+        }
+        else {
+          if(entity2_id==gene && entity1_id==drug) {
+            result = 0;
           }
 
         }
@@ -111,15 +124,10 @@ program.command('getAssociations <param>')
   }
 });
 
-program.command('isAssociated <gene> <drug> <param>')
+program.command('isAssociated <gene> <drug>')
 .description('Get list of associations of a give type')
 .action(function(gene, drug, param){
-  if(param == 'positive') {
     isAssociated(gene,drug);
-  }
-  else if(param== 'negative') {
-      console.log(gene+drug);
-  }
 });
 
 program.parse(process.argv);
