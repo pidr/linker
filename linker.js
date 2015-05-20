@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#! /usr/local/bin/env node
 
 	/**
 	 * Module dependencies.
@@ -7,7 +7,7 @@
 	var program = require('commander');
 	var SparqlClient = require('sparql-client');
 	var request = require('request');
-	var Datastore = require('nedb');
+	var byline = require('byline');
 	var JSONStream = require('JSONStream');
 	var es = require('event-stream');
 	var fs = require('graceful-fs');
@@ -48,6 +48,11 @@
 		})
 	}
 
+	function getPharmIDfromGeneId(gene_id, callback) {
+		redisClient.smembers(gene_id, function (err, value) {
+			callback(value);
+		})
+	}
 	function linkSnomedToCui(callback) {
 		var results;
 		var options = {
@@ -172,6 +177,27 @@
 		});
 	}
 
+	function getGeneToDrugsPGKB() {
+		var stream = 	byline(fs.createReadStream('./testResult.json'));
+		stream.setEncoding('utf8');
+		stream.on('data',function (value) {
+			var element = value.split(';');
+			var gene = element[0];
+			var relation_type = element[1];
+			var disease = element[2];
+			var drug = element[3];
+			getPharmIDfromDrugName(drug, function (drug_id) {
+				getPharmIDfromGeneId(gene, function (gene_id) {
+					var output = gene_id+";"+relation_type+";"+disease+";"+drug_id+"\n";
+					console.log(output);
+					fs.appendFileSync('./outputPharmGKB.csv', output);
+				})
+
+			})
+
+		})
+	}
+
 	function getGeneRelationSnomed(callback) {
 		var endpoint = 'http://dbs.kevindalleau.fr/sparql';
 		var query = 'SELECT ?gene ?link ?pathology WHERE {'+
@@ -232,6 +258,10 @@
 			}
 			else if(param == "all") {
 				getGeneToDrugs();
+			}
+
+			else if(param == "all_pharmgkb") {
+				getGeneToDrugsPGKB();
 			}
 
 	  });
