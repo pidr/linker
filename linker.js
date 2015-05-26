@@ -9,6 +9,8 @@
 	var request = require('request');
 	var byline = require('byline');
 	var JSONStream = require('JSONStream');
+	var sys = require('sys')
+	var exec = require('child_process').spawn;
 	var es = require('event-stream');
 	var fs = require('graceful-fs');
 	var redis = require('redis'),
@@ -220,6 +222,33 @@
 		});
 	}
 
+	function searchInRelations(gene, drug, callback) {
+		var commandline = 'node ./parsePharmgkb.js isAssociated '+gene+" "+drug;
+
+		exec(commandline);
+	}
+
+	function createPositiveSample() {
+		var foundLinks = byline(fs.createReadStream('outputPharmGKB.csv'));
+		foundLinks.setEncoding('utf8');
+		// var child = exec('node ./parsePharmgkb.js isAssociated PA162391564 PA448408')
+		child.stdout.on('data',function(stdout) {
+			console.log(stdout);
+		})
+	// 	foundLinks.on('data', function (data) {
+	// 		var lineToArray = data.split(";");
+	// 		var gene = lineToArray[0];
+	// 		var drug = lineToArray[3];
+	// 		searchInRelations(gene,drug, function(error,stdout, stderr) {
+	// 			console.log("h");
+	// 			console.log(stdout);
+	// 		})
+	//
+	//
+	// 		// console.log(gene+disease);
+	// 	})
+	}
+
 
 	program
 	  .version('0.0.1')
@@ -263,7 +292,9 @@
 			else if(param == "all_pharmgkb") {
 				getGeneToDrugsPGKB();
 			}
-
+			else if(param == "createPositiveSample") {
+				createPositiveSample();
+			}
 	  });
 
 	program.parse(process.argv);
